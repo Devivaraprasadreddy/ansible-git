@@ -1,0 +1,65 @@
+---
+- name: Initialize Git repo and push HTML files
+  hosts: localhost
+  tasks:
+    - name: Ensure repo directory exists
+      file:
+        path: /home/ubuntu/ansible-git
+        state: directory
+
+    - name: Create index.html
+      copy:
+        dest: /home/ubuntu/ansible-git/index.html
+        content: |
+          <html>
+          <head><title>Home</title></head>
+          <body>
+          <h1>Welcome to Index Page</h1>
+          </body>
+          </html>
+
+    - name: Create about.html
+      copy:
+        dest: /home/ubuntu/ansible-git/about.html
+        content: |
+          <html>
+          <head><title>About</title></head>
+          <body>
+          <h1>About Page</h1>
+          </body>
+          </html>
+
+    - name: Initialize git repo (if not already)
+      command: git init
+      args:
+        chdir: /home/ubuntu/ansible-git
+      failed_when: false
+
+    - name: Ensure GitHub remote is set
+      command: git remote add origin git@github.com:Devivaraprasadreddy/ansible-git.git
+      args:
+        chdir: /home/ubuntu/ansible-git
+      failed_when: false
+
+    - name: Set branch name to main
+      command: git branch -M main
+      args:
+        chdir: /home/ubuntu/ansible-git
+      failed_when: false
+
+    - name: Add all files
+      command: git add .
+      args:
+        chdir: /home/ubuntu/ansible-git
+
+    - name: Commit changes
+      command: git commit -m "Initial commit with index.html and about.html"
+      args:
+        chdir: /home/ubuntu/ansible-git
+      failed_when: false
+
+    - name: Push to GitHub (set upstream)
+      command: git push -u origin main
+      args:
+        chdir: /home/ubuntu/ansible-git
+      failed_when: false
