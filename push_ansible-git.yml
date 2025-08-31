@@ -1,0 +1,84 @@
+---
+- name: Automate Git repo creation and push with HTML files
+  hosts: localhost
+  tasks:
+
+    - name: Ensure repo directory exists
+      file:
+        path: /home/ubuntu/ansible-git
+        state: directory
+
+    - name: Initialize git repo if not exists
+      command: git init
+      args:
+        chdir: /home/ubuntu/ansible-git
+      when: not lookup('ansible.builtin.file', '/home/ubuntu/ansible-git/.git', errors='ignore')
+
+    - name: Configure Git user name
+      command: git config user.name "Devivaraprasadreddy"
+      args:
+        chdir: /home/ubuntu/ansible-git
+
+    - name: Configure Git user email
+      command: git config user.email "your-email@example.com"
+      args:
+        chdir: /home/ubuntu/ansible-git
+
+    - name: Create index.html
+      copy:
+        dest: /home/ubuntu/ansible-git/index.html
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Home</title>
+          </head>
+          <body>
+              <h1>Welcome to My Website</h1>
+              <p>This is the index page created via Ansible automation.</p>
+              <a href="about.html">Go to About Page</a>
+          </body>
+          </html>
+
+    - name: Create about.html
+      copy:
+        dest: /home/ubuntu/ansible-git/about.html
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>About</title>
+          </head>
+          <body>
+              <h1>About Us</h1>
+              <p>This is the about page created via Ansible automation.</p>
+              <a href="index.html">Back to Home</a>
+          </body>
+          </html>
+
+    - name: Add files to git
+      command: git add .
+      args:
+        chdir: /home/ubuntu/ansible-git
+
+    - name: Commit files to git
+      command: git commit -m "Initial commit with index.html and about.html"
+      args:
+        chdir: /home/ubuntu/ansible-git
+      ignore_errors: yes   # ignore if commit already exists
+
+    - name: Add remote origin
+      command: git remote add origin git@github.com:Devivaraprasadreddy/ansible-git.git
+      args:
+        chdir: /home/ubuntu/ansible-git
+      ignore_errors: yes   # ignore if already added
+
+    - name: Rename default branch to main
+      command: git branch -M main
+      args:
+        chdir: /home/ubuntu/ansible-git
+
+    - name: Push to GitHub
+      command: git push -u origin main
+      args:
+        chdir: /home/ubuntu/ansible-git
